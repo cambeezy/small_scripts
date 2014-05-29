@@ -1,0 +1,11 @@
+# Optional variables for a backup script
+MYSQL_USER="user"
+MYSQL_PASS="password"
+MYSQL_HOST="localhost"
+BACKUP_DIR=/directory/path
+test -d "$BACKUP_DIR" || mkdir -p "$BACKUP_DIR"
+# Get the database list, exclude information_schema
+for db in $(mysql -B -s -u $MYSQL_USER --password=$MYSQL_PASS --host=$MYSQL_HOST -e 'show databases' | grep -v information_schema)
+do
+  # dump each database in a separate file
+  mysqldump --force --extended-insert=false -u $MYSQL_USER --password=$MYSQL_PASS --host=$MYSQL_HOST "$db" | gzip > "$BACKUP_DIR/$db.sql.gz"
